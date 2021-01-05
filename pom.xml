@@ -370,14 +370,14 @@
 
     </properties>
 
-    <!--    <distributionManagement>-->
-    <!--        <repository>-->
-    <!--            <id>ndasec</id>-->
-    <!--            <url>http://maven.work.ndasec:8081/repository/ndasec/</url>-->
-    <!--        </repository>-->
-    <!--        <snapshotRepository>-->
-    <!--            <id>ndasec-snapshot</id>-->
-    <!--            <url>http://maven.work.ndasec:8081/repository/ndasec-snapshot/</url>-->
-    <!--        </snapshotRepository>-->
-    <!--    </distributionManagement>-->
+        <distributionManagement>
+            <repository>
+                <id>ndasec</id>
+                <url>http://maven.work.ndasec:8081/repository/ndasec/</url>
+            </repository>
+            <snapshotRepository>
+                <id>ndasec-snapshot</id>
+                <url>http://maven.work.ndasec:8081/repository/ndasec-snapshot/</url>
+            </snapshotRepository>
+        </distributionManagement>
 </project>
