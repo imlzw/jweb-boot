@@ -1,6 +1,9 @@
 package cc.jweb.boot.core;
 
 import cc.jweb.boot.aop.JwebAopFactory;
+import cc.jweb.boot.components.gateway.JwebGatewayHandler;
+import cc.jweb.boot.components.gateway.JwebGatewayManager;
+import cc.jweb.boot.components.nameservice.JwebDiscoveryManager;
 import cc.jweb.boot.utils.lang.reflection.JwebClassScanner;
 import com.jfinal.aop.Aop;
 import com.jfinal.aop.AopManager;
@@ -20,8 +23,6 @@ import io.jboot.aop.jfinal.JfinalPlugins;
 import io.jboot.app.ApplicationUtil;
 import io.jboot.components.cache.support.JbootCaptchaCache;
 import io.jboot.components.cache.support.JbootTokenCache;
-import io.jboot.components.gateway.JbootGatewayHandler;
-import io.jboot.components.gateway.JbootGatewayManager;
 import io.jboot.components.limiter.LimiterManager;
 import io.jboot.components.rpc.JbootrpcManager;
 import io.jboot.components.schedule.JbootScheduleManager;
@@ -265,7 +266,7 @@ public class JwebCoreConfig extends JFinalConfig {
         //用户的 handler 优先于 jboot 的 handler 执行
         JbootAppListenerManager.me().onHandlerConfig(new JfinalHandlers(handlers));
 
-        handlers.add(new JbootGatewayHandler());
+        handlers.add(new JwebGatewayHandler());
         handlers.add(new AttachmentHandler());
 
         //metrics 处理
@@ -294,13 +295,14 @@ public class JwebCoreConfig extends JFinalConfig {
         /**
          * 初始化
          */
-        JbootrpcManager.me().init();
+        JwebDiscoveryManager.me().init();
+        JwebGatewayManager.me().init();
         JbootShiroManager.me().init(routeList);
+        JbootrpcManager.me().init();
         JbootScheduleManager.me().init();
         JbootSwaggerManager.me().init();
         LimiterManager.me().init();
         JbootSeataManager.me().init();
-        JbootGatewayManager.me().init();
 
         JbootAppListenerManager.me().onStart();
 
