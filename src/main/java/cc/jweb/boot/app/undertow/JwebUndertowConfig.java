@@ -2,7 +2,9 @@ package cc.jweb.boot.app.undertow;
 
 import cc.jweb.boot.kit.JwebClassLoaderKit;
 import com.jfinal.server.undertow.PropExt;
+import com.jfinal.server.undertow.hotswap.ClassLoaderKit;
 import io.jboot.app.undertow.JbootUndertowConfig;
+import io.undertow.Undertow;
 
 import java.lang.reflect.Field;
 
@@ -14,6 +16,14 @@ public class JwebUndertowConfig extends JbootUndertowConfig {
     public JwebUndertowConfig(String jfinalConfigClass) {
         super(jfinalConfigClass);
         this.resetClassLoaderKit();
+    }
+
+
+    protected ClassLoaderKit getClassLoaderKit() {
+        if (classLoaderKit == null) {
+            classLoaderKit = new ClassLoaderKit(Undertow.class.getClassLoader(), getHotSwapResolver());
+        }
+        return classLoaderKit;
     }
 
     /**

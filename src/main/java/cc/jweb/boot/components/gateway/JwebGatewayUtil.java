@@ -64,7 +64,7 @@ public class JwebGatewayUtil {
         Matcher matcher = regex.matcher(proxyUrl);
         if (matcher.find()) {
             String serviceName = matcher.group(1);
-            Instance instance = JwebDiscoveryManager.me().getNamingService().selectOneHealthyInstance(serviceName);
+            Instance instance = JwebDiscoveryManager.me().getNamingService().selectOneHealthyInstance(serviceName, true);
             if (instance == null) {
                 throw new NacosException(400, "找不到");
             } else {

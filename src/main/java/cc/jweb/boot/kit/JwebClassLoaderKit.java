@@ -1,8 +1,8 @@
 package cc.jweb.boot.kit;
 
+import cc.jweb.boot.app.classloader.JwebHotSwapClassLoader;
 import com.jfinal.server.undertow.UndertowKit;
 import com.jfinal.server.undertow.hotswap.ClassLoaderKit;
-import com.jfinal.server.undertow.hotswap.HotSwapClassLoader;
 import com.jfinal.server.undertow.hotswap.HotSwapResolver;
 import io.jboot.app.PathKitExt;
 
@@ -36,7 +36,7 @@ public class JwebClassLoaderKit extends ClassLoaderKit {
                 urlList.add(classPathUrl);
             }
             classPathUrls = urlList.toArray(new URL[urlList.size()]);
-            currentClassLoader = new HotSwapClassLoader(classPathUrls, parentClassLoader, hotSwapResolver);
+            currentClassLoader = new JwebHotSwapClassLoader(classPathUrls, parentClassLoader, hotSwapResolver);
         }
     }
 

@@ -21,6 +21,7 @@ import io.jboot.Jboot;
 import io.jboot.aop.jfinal.JfinalHandlers;
 import io.jboot.aop.jfinal.JfinalPlugins;
 import io.jboot.app.ApplicationUtil;
+import io.jboot.app.config.JbootConfigManager;
 import io.jboot.components.cache.support.JbootCaptchaCache;
 import io.jboot.components.cache.support.JbootTokenCache;
 import io.jboot.components.limiter.LimiterManager;
@@ -65,7 +66,6 @@ import java.util.Properties;
 public class JwebCoreConfig extends JFinalConfig {
 
     public JwebCoreConfig() {
-
         initSystemProperties();
 
         // 重写 Jboot 下 ClassScanner加载的类缓存数据，因为其加载的classloader在fatjar下，无法加载config下的class

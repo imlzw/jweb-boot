@@ -1,16 +1,13 @@
 package cc.jweb.boot.app;
 
+import cc.jweb.boot.app.config.JwebConfigManager;
 import cc.jweb.boot.app.undertow.JwebUndertowConfig;
 import cc.jweb.boot.app.undertow.JwebUndertowServer;
 import cc.jweb.boot.kit.JwebPathKitExt;
-import com.jfinal.server.undertow.UndertowConfig;
-import com.jfinal.server.undertow.UndertowKit;
-import com.jfinal.server.undertow.UndertowServer;
-import com.jfinal.server.undertow.WebBuilder;
+import com.jfinal.server.undertow.*;
 import io.jboot.app.JbootApplication;
 import io.jboot.app.JbootApplicationConfig;
 import io.jboot.app.JbootWebBuilderConfiger;
-import io.jboot.app.config.JbootConfigManager;
 
 import javax.servlet.DispatcherType;
 
@@ -21,7 +18,26 @@ public class JwebApplication extends JbootApplication {
     }
 
     public static void run(String[] args) {
-        start(createServer(args));
+        JbootApplicationConfig jbootApplicationConfig = initConfig(args);
+        start(createServer(jbootApplicationConfig));
+    }
+
+    /**
+     * 初始化配置
+     * @param args
+     */
+    private static JbootApplicationConfig initConfig(String[] args) {
+        // 部署模式下才初始化PathKitExt下的rootClassPath。
+        if (UndertowKit.isDeployMode()) {
+            // 初始化PathKitExt rootClassPath值
+            JwebPathKitExt.initPathKitExtRootClassPath();
+        }
+        // 先重置PropExt的classLoaderKit对象为JwebClassLoaderKit
+        JwebUndertowConfig.resetPropExtClassLoaderKit();
+        // 初始化jboot配置管理对象
+        JwebConfigManager.me().resetJbootConfigManager();
+        JbootApplicationConfig appConfig = ApplicationUtil.getAppConfig(args);
+        return appConfig;
     }
 
     public static void run(String[] args, JbootWebBuilderConfiger configer) {
@@ -32,33 +48,13 @@ public class JwebApplication extends JbootApplication {
         server.start();
     }
 
-    public static void setBootArg(String key, Object value) {
-        JbootConfigManager.setBootArg(key, value);
-    }
-
     /**
      * 创建 Undertow 服务器，public 用于可以给第三方创建创建着急的 Server
      *
-     * @param args
      * @return 返回 UndertowServer
      */
-    public static UndertowServer createServer(String[] args) {
-        JbootApplicationConfig appConfig = ApplicationUtil.getAppConfig(args);
+    public static UndertowServer createServer(JbootApplicationConfig appConfig) {
         return createServer(appConfig, createUndertowConfig(appConfig), null);
-    }
-
-    /**
-     * 创建 Undertow 服务器，public 用于可以给第三方创建创建着急的 Server
-     * <p>
-     * JbootApplication.start(JbootApplication.createServer(args,new MyWebBuilderConfiger()))
-     *
-     * @param args
-     * @param configer 可以通过 Configer 来进行自定义配置
-     * @return
-     */
-    public static UndertowServer createServer(String[] args, JbootWebBuilderConfiger configer) {
-        JbootApplicationConfig appConfig = ApplicationUtil.getAppConfig(args);
-        return createServer(appConfig, createUndertowConfig(appConfig), configer);
     }
 
 
@@ -85,13 +81,6 @@ public class JwebApplication extends JbootApplication {
 
 
     public static UndertowConfig createUndertowConfig(JbootApplicationConfig appConfig) {
-        // 部署模式下才初始化PathKitExt下的rootClassPath。
-        if (UndertowKit.isDeployMode()) {
-            // 初始化PathKitExt rootClassPath值
-            JwebPathKitExt.initPathKitExtRootClassPath();
-        }
-        // 先重置PropExt的classLoaderKit对象为JwebClassLoaderKit
-        JwebUndertowConfig.resetPropExtClassLoaderKit();
         UndertowConfig undertowConfig = new JwebUndertowConfig(appConfig.getJfinalConfig());
         undertowConfig.addSystemClassPrefix("io.jboot.app");
         undertowConfig.addHotSwapClassPrefix("io.jboot");
