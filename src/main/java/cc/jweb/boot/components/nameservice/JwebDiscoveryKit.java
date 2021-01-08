@@ -123,7 +123,7 @@ public class JwebDiscoveryKit {
                 if (StringUtils.notBlank(ignoredInterfaces)) {
                     String[] splitInterfacess = ignoredInterfaces.split(",");
                     for (String netInterfacess : splitInterfacess) {
-                        if (StringUtils.notBlank(netInterfacess) && lowerCase.indexOf(netInterfacess.trim()) >= 0) {
+                        if (StringUtils.notBlank(netInterfacess) && lowerCase.indexOf(netInterfacess.trim().toLowerCase()) >= 0) {
                             return false;
                         }
                     }
