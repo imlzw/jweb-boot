@@ -1,6 +1,5 @@
 package cc.jweb.boot.components.nameservice;
 
-import cc.jweb.boot.http.NetUtils;
 import cc.jweb.boot.utils.lang.StringUtils;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingFactory;
@@ -35,17 +34,41 @@ public class JwebDiscoveryManager {
         return me;
     }
 
+    public static void main(String[] args) throws NacosException {
+        Properties properties = new Properties();
+        properties.setProperty("serverAddr", "http://192.168.2.202:8848");
+        NamingService namingService = NamingFactory.createNamingService(properties);
+        namingService.subscribe("webgw", new EventListener() {
+            @Override
+            public void onEvent(Event event) {
+                System.out.println(((NamingEvent) event).getServiceName());
+                System.out.println(((NamingEvent) event).getInstances());
+            }
+        });
+        List<Instance> webgw = namingService.getAllInstances("webgw");
+        for (Instance instance : webgw) {
+            System.out.println(instance.toString());
+        }
+        while (true) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     /**
      * 初始化管理
      */
     public void init() {
         // 初始化配置信息
-        Map<String, JwebNameServiceConfig> configMap = JbootConfigUtil.getConfigModels(JwebNameServiceConfig.class, "jweb.discovery");
-        JwebNameServiceConfig config = configMap.get("default");
+        Map<String, JwebDiscoveryConfig> configMap = JbootConfigUtil.getConfigModels(JwebDiscoveryConfig.class, "jweb.discovery");
+        JwebDiscoveryConfig config = configMap.get("default");
         if (!config.isEnable()) {
             System.out.println("Jweb Discovery disabled!");
             return;
-        }else{
+        } else {
             System.out.println("Jweb Discovery enabled!");
         }
         try {
@@ -67,8 +90,8 @@ public class JwebDiscoveryManager {
      *
      * @param config
      */
-    private void initNamingService(JwebNameServiceConfig config) throws NacosException {
-        System.out.print("Jweb Creating NamingService instance...");
+    private void initNamingService(JwebDiscoveryConfig config) throws NacosException {
+        System.out.print("Jweb Creating NamingService instance ("+config.getRegisterAddress()+") ...");
         Properties properties = new Properties();
         properties.setProperty("serverAddr", config.getRegisterAddress());
         if (StringUtils.notBlank(config.getNamespace())) {
@@ -83,22 +106,24 @@ public class JwebDiscoveryManager {
      *
      * @param config
      */
-    public void registerLocalInstance(JwebNameServiceConfig config) throws NacosException {
-        System.out.print("Jweb Registering LocalService...");
+    public void registerLocalInstance(JwebDiscoveryConfig config) throws NacosException {
+        String localInetAddress = JwebDiscoveryKit.getLocalInetAddress(config);
+        int port = Integer.parseInt(Jboot.configValue("undertow.port"));
+        System.out.print("Jweb Registering LocalService (" + localInetAddress + ":" + port + ") ...");
         Instance instance = new Instance();
         instance.setClusterName(config.getClusterName());
         instance.setServiceName(config.getServiceName());
-        instance.setIp(NetUtils.getLocalInetAddress());
-        instance.setPort(Integer.parseInt(Jboot.configValue("undertow.port")));
+        instance.setIp(localInetAddress);
+        instance.setPort(port);
         instance.setHealthy(true);
         instance.setWeight(1.0);
         // 临时实例会生成心跳反馈程序，持久不会，那如何健康检查呢？
         instance.setEphemeral(config.isEphemeral());
         Map<String, String> instanceMeta = new HashMap<>();
-        instanceMeta.put("site", "et2");
-        instanceMeta.put("site1", "et2");
-        instanceMeta.put("sit3e", "et2");
-        instanceMeta.put("site4", "et2");
+//        instanceMeta.put("site", "et2");
+//        instanceMeta.put("site1", "et2");
+//        instanceMeta.put("sit3e", "et2");
+//        instanceMeta.put("site4", "et2");
         instance.setMetadata(instanceMeta);
         String groupName = config.getGroupName();
         if (StringUtils.notBlank(groupName)) {
@@ -138,30 +163,5 @@ public class JwebDiscoveryManager {
 
     public NamingService getNamingService() {
         return namingService;
-    }
-
-
-    public static void main(String[] args) throws NacosException {
-        Properties properties = new Properties();
-        properties.setProperty("serverAddr", "http://192.168.2.202:8848");
-        NamingService namingService = NamingFactory.createNamingService(properties);
-        namingService.subscribe("webgw", new EventListener() {
-            @Override
-            public void onEvent(Event event) {
-                System.out.println(((NamingEvent)event).getServiceName());
-                System.out.println(((NamingEvent)event).getInstances());
-            }
-        });
-        List<Instance> webgw = namingService.getAllInstances("webgw");
-        for (Instance instance : webgw) {
-            System.out.println(instance.toString());
-        }
-        while (true) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
     }
 }

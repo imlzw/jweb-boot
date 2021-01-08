@@ -3,11 +3,10 @@ package cc.jweb.boot.components.nameservice;
 import java.io.Serializable;
 
 /**
- * jweb命名服务配置类
- *
+ * jweb服务发现配置类
  */
-public class JwebNameServiceConfig implements Serializable {
-    
+public class JwebDiscoveryConfig implements Serializable {
+
     private boolean enable = false;
     private String serviceName;
     private String namespace;
@@ -15,6 +14,8 @@ public class JwebNameServiceConfig implements Serializable {
     private String registerAddress;
     private String clusterName;
     private boolean ephemeral = true;
+    private String ignoredInterfaces;
+    private String preferredNetworks;
 
     public boolean isEnable() {
         return enable;
@@ -70,5 +71,21 @@ public class JwebNameServiceConfig implements Serializable {
 
     public void setEphemeral(boolean ephemeral) {
         this.ephemeral = ephemeral;
+    }
+
+    public String getIgnoredInterfaces() {
+        return ignoredInterfaces;
+    }
+
+    public void setIgnoredInterfaces(String ignoredInterfaces) {
+        this.ignoredInterfaces = ignoredInterfaces;
+    }
+
+    public String getPreferredNetworks() {
+        return preferredNetworks;
+    }
+
+    public void setPreferredNetworks(String preferredNetworks) {
+        this.preferredNetworks = preferredNetworks;
     }
 }

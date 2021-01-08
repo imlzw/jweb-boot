@@ -1,5 +1,8 @@
 package cc.jweb.boot.http;
 
+import cc.jweb.boot.components.nameservice.JwebDiscoveryConfig;
+import cc.jweb.boot.utils.lang.StringUtils;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -29,95 +32,5 @@ public class NetUtils {
 
     public static int getRandomPort() {
         return RND_PORT_START + ThreadLocalRandom.current().nextInt(RND_PORT_RANGE);
-    }
-
-
-    public static InetAddressFilter nameFilter = new InetAddressFilter();
-
-    public static String getLocalInetAddress() {
-        List<String> localIPs = getLocalIPs();
-        if (localIPs.size() > 0) {
-            return localIPs.get(0);
-        }
-        return null;
-    }
-    
-    /**
-     * 获取本机ip地址
-     *
-     * @return
-     */
-    public static List<String> getLocalIPs() {
-        LinkedHashMap<String, InetAddress> localIps = getLocalHostAddresses(nameFilter);
-        List<String> ips = new ArrayList<>();
-        if (localIps != null && !localIps.isEmpty()) {
-            for (String key : localIps.keySet()) {
-                ips.add(localIps.get(key).getHostAddress());
-            }
-        }
-        return ips;
-    }
-
-    public static LinkedHashMap<String, InetAddress> getLocalHostAddresses(NameFilter nameFilter) {
-        LinkedHashMap<String, InetAddress> map = new LinkedHashMap<>();
-        Enumeration<NetworkInterface> netInterfaces;
-        try {
-            // 拿到所有网卡
-            netInterfaces = NetworkInterface.getNetworkInterfaces();
-            InetAddress ip;
-            // 遍历每个网卡，拿到ip
-            while (netInterfaces.hasMoreElements()) {
-                NetworkInterface ni = netInterfaces.nextElement();
-                if (nameFilter.filter(ni.getDisplayName())) {
-                    Enumeration<InetAddress> addresses = ni.getInetAddresses();
-                    while (addresses.hasMoreElements()) {
-                        ip = addresses.nextElement();
-                        if (!ip.isLoopbackAddress() && ip.getHostAddress().indexOf(':') == -1) {
-                            map.put(ni.getName() + ":" + ni.getDisplayName(), ip);
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return map;
-    }
-
-
-    public static interface NameFilter{
-        public boolean filter(String name);
-    }
-
-
-    /**
-     * 网卡过滤器，过滤掉虚拟网卡等。
-     */
-    private static class InetAddressFilter implements NameFilter {
-
-        @Override
-        public boolean filter(String name) {
-            if (name.toLowerCase().indexOf("virtual") >= 0) {
-                return false;
-            }
-            if (name.toLowerCase().indexOf("hyper-v") >= 0) {
-                return false;
-            }
-            if (name.toLowerCase().indexOf("vmware") >= 0) {
-                return false;
-            }
-            if (name.toLowerCase().indexOf("vmnet") >= 0) {
-                return false;
-            }
-            if (name.toLowerCase().indexOf("tap") >= 0) {
-                return false;
-            }
-            return true;
-        }
-    }
-
-    public static void main(String[] args) {
-        System.out.println(getLocalHostAddresses(nameFilter));
     }
 }
