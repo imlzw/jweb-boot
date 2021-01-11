@@ -16,7 +16,6 @@
 package cc.jweb.boot.components.gateway;
 
 import com.jfinal.log.Log;
-import io.jboot.components.gateway.JbootGatewayConfig;
 import io.jboot.exception.JbootException;
 import io.jboot.utils.StrUtil;
 
@@ -56,7 +55,6 @@ public class JwebGatewayHttpProxy {
         this.connectTimeOut = config.getProxyConnectTimeout();
         this.retries = config.getProxyRetries();
         this.contentType = config.getProxyContentType();
-
     }
 
     public void sendRequest(String url, HttpServletRequest req, HttpServletResponse resp) {
@@ -80,7 +78,6 @@ public class JwebGatewayHttpProxy {
 
 
     public void doSendRequest(String url, HttpServletRequest req, HttpServletResponse resp) throws Exception {
-
         HttpURLConnection conn = null;
         try {
             conn = getConnection(url);
@@ -217,7 +214,6 @@ public class JwebGatewayHttpProxy {
 
 
     private void configConnection(HttpURLConnection conn, HttpServletRequest req) throws ProtocolException {
-
         conn.setReadTimeout(readTimeOut);
         conn.setConnectTimeout(connectTimeOut);
         conn.setInstanceFollowRedirects(false);

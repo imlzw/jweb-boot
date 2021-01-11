@@ -20,8 +20,6 @@ import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.csp.sentinel.util.StringUtil;
 import com.jfinal.kit.JsonKit;
 import com.jfinal.kit.LogKit;
-import io.jboot.components.gateway.GatewayUtil;
-import io.jboot.components.gateway.JbootGatewayConfig;
 import io.jboot.utils.StrUtil;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,7 +37,7 @@ public class JwebGatewaySentinelProcesser {
 
     public void process(Runnable runnable, JwebGatewayConfig config, HttpServletRequest req, HttpServletResponse resp) {
         Entry entry = null;
-        String resourceName = GatewayUtil.buildResource(req);
+            String resourceName = JwebGatewayUtil.buildResource(config, req);
         try {
             entry = SphU.entry(resourceName, ResourceTypeConstants.COMMON_API_GATEWAY, EntryType.IN);
             runnable.run();

@@ -447,4 +447,19 @@ public class JwebGatewayConfig implements Serializable {
 
         return false;
     }
+
+    /**
+     * 是否为host代理配置
+     * 
+     * @return
+     */
+    public boolean isHostProxy() {
+        if (pathContains != null || pathEndsWith != null || pathEquals != null || pathStartsWith != null) {
+            return false;
+        }
+        if (hostContains != null || hostEndsWith != null || hostEquals != null || hostStartsWith != null) {
+            return true;
+        }
+        return false;
+    }
 }

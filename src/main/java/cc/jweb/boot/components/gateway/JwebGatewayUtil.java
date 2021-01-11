@@ -22,6 +22,8 @@ import com.alibaba.nacos.api.naming.pojo.Instance;
 import io.jboot.utils.StrUtil;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,6 +56,32 @@ public class JwebGatewayUtil {
     }
 
     /**
+     * 解析出可用代理目标urls
+     * 将url中的服务名称，替换为真正服务发现健康实例ips
+     *
+     * @param proxyUrl
+     * @return
+     */
+    public static List<String> parseDiscoveryProxyUrls(String proxyUrl) throws NacosException {
+        List<String> urls = new ArrayList<>(16);
+        Matcher matcher = regex.matcher(proxyUrl);
+        if (matcher.find()) {
+            String serviceName = matcher.group(1);
+            List<Instance> instances = JwebDiscoveryManager.me().getNamingService().selectInstances(serviceName, true, true);
+            if (instances == null || instances.isEmpty()) {
+                throw new NacosException(400, "找不到服务实例");
+            } else {
+                for (Instance instance : instances) {
+                    urls.add(proxyUrl.replaceAll(serviceNameRegex, instance.getIp() + ":" + instance.getPort()));
+                }
+            }
+        } else {
+            urls.add(proxyUrl);
+        }
+        return urls;
+    }
+
+    /**
      * 解析代理目标url
      * 将url中的服务名称，替换为真正服务发现健康实例ip
      *
@@ -75,13 +103,16 @@ public class JwebGatewayUtil {
     }
 
 
-    public static String buildResource(HttpServletRequest request) {
-        String pathInfo = getResourcePath(request);
+    public static String buildResource(JwebGatewayConfig config, HttpServletRequest request) {
+        String pathInfo = getResourcePath(config, request);
         if (!pathInfo.startsWith(PATH_SPLIT)) {
             pathInfo = PATH_SPLIT + pathInfo;
         }
 
         if (PATH_SPLIT.equals(pathInfo)) {
+            if (config.isHostProxy()) {
+                return request.getServerName() + " --> " + pathInfo;
+            }
             return pathInfo;
         }
 
@@ -94,15 +125,16 @@ public class JwebGatewayUtil {
         } else {
             pathInfo = PATH_SPLIT + StringUtil.trim(pathInfo);
         }
-
+        if (config.isHostProxy()) {
+            return request.getServerName() + " --> " + pathInfo;
+        }
         return pathInfo;
     }
 
 
-    private static String getResourcePath(HttpServletRequest request) {
+    private static String getResourcePath(JwebGatewayConfig config, HttpServletRequest request) {
         String pathInfo = normalizeAbsolutePath(request.getPathInfo(), false);
         String servletPath = normalizeAbsolutePath(request.getServletPath(), pathInfo.length() != 0);
-
         return servletPath + pathInfo;
     }
 
