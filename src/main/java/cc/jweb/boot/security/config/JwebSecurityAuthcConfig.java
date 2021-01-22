@@ -16,14 +16,18 @@
 
 package cc.jweb.boot.security.config;
 
+import cc.jweb.boot.utils.lang.path.JwebAntPathMatcher;
+import cc.jweb.boot.utils.lang.path.PatternMatcher;
+
 /**
  * jweb安全认证配置
  */
 public class JwebSecurityAuthcConfig {
     private boolean enable = false;
     private String loginUrl = "/login";
-    private String[] pathFilter;
-    private String[] excludeFilter;
+    private String[] filtePaths;
+    private String[] excludePaths;
+    private static final PatternMatcher pathMatcher = new JwebAntPathMatcher();
 
     public boolean isEnable() {
         return enable;
@@ -41,20 +45,20 @@ public class JwebSecurityAuthcConfig {
         this.loginUrl = loginUrl;
     }
 
-    public String[] getPathFilter() {
-        return pathFilter;
+    public String[] getFiltePaths() {
+        return filtePaths;
     }
 
-    public void setPathFilter(String[] pathFilter) {
-        this.pathFilter = pathFilter;
+    public void setFiltePaths(String[] filtePaths) {
+        this.filtePaths = filtePaths;
     }
 
-    public String[] getExcludeFilter() {
-        return excludeFilter;
+    public String[] getExcludePaths() {
+        return excludePaths;
     }
 
-    public void setExcludeFilter(String[] excludeFilter) {
-        this.excludeFilter = excludeFilter;
+    public void setExcludePaths(String[] excludePaths) {
+        this.excludePaths = excludePaths;
     }
 
     /**
@@ -64,6 +68,20 @@ public class JwebSecurityAuthcConfig {
      * @return
      */
     public boolean pathMatch(String path) {
-        return true;
+        if (excludePaths != null) {
+            for (String filter : excludePaths) {
+                if (pathMatcher.matches(filter, path)) {
+                    return false;
+                }
+            }
+        }
+        if (filtePaths != null) {
+            for (String filter : filtePaths) {
+                if (pathMatcher.matches(filter, path)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

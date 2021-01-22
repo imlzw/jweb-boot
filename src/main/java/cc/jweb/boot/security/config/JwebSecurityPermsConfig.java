@@ -16,9 +16,15 @@
 
 package cc.jweb.boot.security.config;
 
+import cc.jweb.boot.utils.lang.path.JwebAntPathMatcher;
+import cc.jweb.boot.utils.lang.path.PatternMatcher;
+
 public class JwebSecurityPermsConfig {
     private boolean enable;
     private String failureUrl;
+    private String[] filtePaths;
+    private String[] excludePaths;
+    private static final PatternMatcher pathMatcher = new JwebAntPathMatcher();
 
     public boolean isEnable() {
         return enable;
@@ -34,5 +40,46 @@ public class JwebSecurityPermsConfig {
 
     public void setFailureUrl(String failureUrl) {
         this.failureUrl = failureUrl;
+    }
+
+
+    public String[] getFiltePaths() {
+        return filtePaths;
+    }
+
+    public void setFiltePaths(String[] filtePaths) {
+        this.filtePaths = filtePaths;
+    }
+
+    public String[] getExcludePaths() {
+        return excludePaths;
+    }
+
+    public void setExcludePaths(String[] excludePaths) {
+        this.excludePaths = excludePaths;
+    }
+
+    /**
+     * 路径匹配
+     *
+     * @param path
+     * @return
+     */
+    public boolean pathMatch(String path) {
+        if (excludePaths != null) {
+            for (String filter : excludePaths) {
+                if (pathMatcher.matches(filter, path)) {
+                    return false;
+                }
+            }
+        }
+        if (filtePaths != null) {
+            for (String filter : filtePaths) {
+                if (pathMatcher.matches(filter, path)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

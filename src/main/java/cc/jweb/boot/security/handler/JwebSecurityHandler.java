@@ -50,11 +50,11 @@ public class JwebSecurityHandler extends Handler {
         JwebSecuritySession session = null;
         if (securityConfig.isEnable()) {
             try {
-                if (securityConfig.getAuthc().isEnable() && securityConfig.getAuthc().pathMatch(target)) {
+                if (securityConfig.getAuthc().isEnable() ) {
                     // 加载session
                     session = JwebSecurityManager.me().initSession(request, response, securityConfig);
                     // 未登录
-                    if (!JwebSecurityManager.me().getSession().isAuthentication()) {
+                    if (securityConfig.getAuthc().pathMatch(target) && !JwebSecurityManager.me().getSession().isAuthentication()) {
                         if (!target.equals(securityConfig.getAuthc().getLoginUrl())) {
                             JwebUtils.redirect(request, response, securityConfig.getAuthc().getLoginUrl());
                             isHandled[0] = true;
