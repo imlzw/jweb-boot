@@ -1,126 +1,58 @@
+/*
+ * Copyright  (c) 2020-2021 imlzw@vip.qq.com jweb.cc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cc.jweb.boot.web.demo.controller;
 
 import cc.jweb.boot.controller.BaseController;
+import cc.jweb.boot.security.session.account.JwebSecurityAccount;
+import cc.jweb.boot.security.utils.JwebSecurityUtils;
 import io.jboot.web.controller.annotation.RequestMapping;
 
-@RequestMapping(value="/")
+@RequestMapping(value = "/")
 public class IndexController extends BaseController {
-    public void index(){
-        renderText("OK");
+    public void index() {
+        JwebSecurityAccount account = JwebSecurityUtils.getAccount();
+        account.setExt("test", "112233221231231");
+        account.setExt("test2", "323112233221231231");
+        account.setExt("test3", "323112233221231231");
+        renderText("OK,Account:" + account);
     }
 
-    public void actuator() {
-        renderText("{\n" +
-                "    \"_links\": {\n" +
-                "        \"self\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator\",\n" +
-                "            \"templated\": false\n" +
-                "        },\n" +
-                "        \"archaius\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/archaius\",\n" +
-                "            \"templated\": false\n" +
-                "        },\n" +
-                "        \"nacos-config\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/nacos-config\",\n" +
-                "            \"templated\": false\n" +
-                "        },\n" +
-                "        \"nacos-discovery\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/nacos-discovery\",\n" +
-                "            \"templated\": false\n" +
-                "        },\n" +
-                "        \"sentinel\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/sentinel\",\n" +
-                "            \"templated\": false\n" +
-                "        },\n" +
-                "        \"beans\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/beans\",\n" +
-                "            \"templated\": false\n" +
-                "        },\n" +
-                "        \"caches-cache\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/caches/{cache}\",\n" +
-                "            \"templated\": true\n" +
-                "        },\n" +
-                "        \"caches\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/caches\",\n" +
-                "            \"templated\": false\n" +
-                "        },\n" +
-                "        \"health\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/health\",\n" +
-                "            \"templated\": false\n" +
-                "        },\n" +
-                "        \"health-path\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/health/{*path}\",\n" +
-                "            \"templated\": true\n" +
-                "        },\n" +
-                "        \"info\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/info\",\n" +
-                "            \"templated\": false\n" +
-                "        },\n" +
-                "        \"conditions\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/conditions\",\n" +
-                "            \"templated\": false\n" +
-                "        },\n" +
-                "        \"configprops\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/configprops\",\n" +
-                "            \"templated\": false\n" +
-                "        },\n" +
-                "        \"env\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/env\",\n" +
-                "            \"templated\": false\n" +
-                "        },\n" +
-                "        \"env-toMatch\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/env/{toMatch}\",\n" +
-                "            \"templated\": true\n" +
-                "        },\n" +
-                "        \"loggers\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/loggers\",\n" +
-                "            \"templated\": false\n" +
-                "        },\n" +
-                "        \"loggers-name\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/loggers/{name}\",\n" +
-                "            \"templated\": true\n" +
-                "        },\n" +
-                "        \"heapdump\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/heapdump\",\n" +
-                "            \"templated\": false\n" +
-                "        },\n" +
-                "        \"threaddump\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/threaddump\",\n" +
-                "            \"templated\": false\n" +
-                "        },\n" +
-                "        \"metrics\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/metrics\",\n" +
-                "            \"templated\": false\n" +
-                "        },\n" +
-                "        \"metrics-requiredMetricName\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/metrics/{requiredMetricName}\",\n" +
-                "            \"templated\": true\n" +
-                "        },\n" +
-                "        \"scheduledtasks\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/scheduledtasks\",\n" +
-                "            \"templated\": false\n" +
-                "        },\n" +
-                "        \"mappings\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/mappings\",\n" +
-                "            \"templated\": false\n" +
-                "        },\n" +
-                "        \"refresh\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/refresh\",\n" +
-                "            \"templated\": false\n" +
-                "        },\n" +
-                "        \"features\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/features\",\n" +
-                "            \"templated\": false\n" +
-                "        },\n" +
-                "        \"service-registry\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/service-registry\",\n" +
-                "            \"templated\": false\n" +
-                "        },\n" +
-                "        \"dubborestmetadata\": {\n" +
-                "            \"href\": \"http://localhost:82/actuator/dubbo/rest/metadata\",\n" +
-                "            \"templated\": false\n" +
-                "        }\n" +
-                "    }\n" +
-                "}");
+    public void login() {
+        // 处理用户登录操作，验证成功后，设置账户信息
+        String uid = getPara("uid");
+        String uname = getPara("uname");
+        if (uid != null) {
+            JwebSecurityUtils.setAccount(new JwebSecurityAccount(uid, uname));
+        }
+        if (JwebSecurityUtils.isAuthentication()) {
+            renderText("登录成功！" + JwebSecurityUtils.getAccount());
+        } else {
+            renderHtml("<a href='/login?uid=2&uname=测试用户' >登录</a>");
+        }
     }
+
+    public void userInfo() {
+        JwebSecurityAccount account = JwebSecurityUtils.getAccount();
+        renderText("account:" + account);
+    }
+
+    public void logout() {
+        JwebSecurityUtils.invalidate();
+        redirect("/login");
+    }
+
 }

@@ -1,9 +1,27 @@
+/*
+ * Copyright  (c) 2020-2021 imlzw@vip.qq.com jweb.cc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cc.jweb.boot.core;
+
 
 import cc.jweb.boot.aop.JwebAopFactory;
 import cc.jweb.boot.components.gateway.JwebGatewayHandler;
 import cc.jweb.boot.components.gateway.JwebGatewayManager;
 import cc.jweb.boot.components.nameservice.JwebDiscoveryManager;
+import cc.jweb.boot.security.JwebSecurityManager;
 import cc.jweb.boot.utils.lang.reflection.JwebClassScanner;
 import com.jfinal.aop.Aop;
 import com.jfinal.aop.AopManager;
@@ -21,7 +39,6 @@ import io.jboot.Jboot;
 import io.jboot.aop.jfinal.JfinalHandlers;
 import io.jboot.aop.jfinal.JfinalPlugins;
 import io.jboot.app.ApplicationUtil;
-import io.jboot.app.config.JbootConfigManager;
 import io.jboot.components.cache.support.JbootCaptchaCache;
 import io.jboot.components.cache.support.JbootTokenCache;
 import io.jboot.components.limiter.LimiterManager;
@@ -32,7 +49,10 @@ import io.jboot.core.listener.JbootAppListenerManager;
 import io.jboot.core.log.Slf4jLogFactory;
 import io.jboot.db.ArpManager;
 import io.jboot.support.metric.JbootMetricConfig;
+import io.jboot.support.metric.MetricServletHandler;
+import io.jboot.support.metric.request.JbootRequestMetricHandler;
 import io.jboot.support.seata.JbootSeataManager;
+import io.jboot.support.sentinel.JbootSentinelManager;
 import io.jboot.support.shiro.JbootShiroManager;
 import io.jboot.support.swagger.JbootSwaggerConfig;
 import io.jboot.support.swagger.JbootSwaggerController;
@@ -47,7 +67,6 @@ import io.jboot.web.directive.annotation.JFinalSharedObject;
 import io.jboot.web.directive.annotation.JFinalSharedStaticMethod;
 import io.jboot.web.handler.JbootActionHandler;
 import io.jboot.web.handler.JbootHandler;
-import io.jboot.web.handler.JbootMetricsHandler;
 import io.jboot.web.json.JbootJson;
 import io.jboot.web.render.JbootRenderFactory;
 
@@ -65,20 +84,20 @@ import java.util.Properties;
  */
 public class JwebCoreConfig extends JFinalConfig {
 
+    private List<Routes.Route> routeList = new ArrayList<>();
+
+
     public JwebCoreConfig() {
         initSystemProperties();
-
         // 重写 Jboot 下 ClassScanner加载的类缓存数据，因为其加载的classloader在fatjar下，无法加载config下的class
         JwebClassScanner.initJbootClassScannerCache();
-
         // 自动为 Interceptor 和 Controller 等添加依赖注入
         AopManager.me().setInjectDependency(true);
-
         AopManager.me().setAopFactory(JwebAopFactory.me());
-
         Aop.inject(this);
-
         JbootAppListenerManager.me().onInit();
+        // 初始化安全管理器
+        JwebSecurityManager.me().init();
     }
 
     /**
@@ -108,11 +127,6 @@ public class JwebCoreConfig extends JFinalConfig {
             }
         }
     }
-
-    private List<Routes.Route> routeList = new ArrayList<>();
-
-
-
 
     @Override
     public void configConstant(Constants constants) {
@@ -147,6 +161,7 @@ public class JwebCoreConfig extends JFinalConfig {
         JbootAppListenerManager.me().onConstantConfig(constants);
 
     }
+
 
     @Override
     public void configRoute(Routes routes) {
@@ -266,15 +281,23 @@ public class JwebCoreConfig extends JFinalConfig {
         //用户的 handler 优先于 jboot 的 handler 执行
         JbootAppListenerManager.me().onHandlerConfig(new JfinalHandlers(handlers));
 
+
         handlers.add(new JwebGatewayHandler());
         handlers.add(new AttachmentHandler());
 
+
         //metrics 处理
         JbootMetricConfig metricsConfig = Jboot.config(JbootMetricConfig.class);
-        if (metricsConfig.isConfigOk()) {
-            handlers.add(new JbootMetricsHandler(metricsConfig.getUrl()));
-        }
+        if (metricsConfig.isEnable() && metricsConfig.isConfigOk()) {
 
+            if (StrUtil.isNotBlank(metricsConfig.getAdminServletMapping())) {
+                handlers.add(new MetricServletHandler(metricsConfig.getAdminServletMapping()));
+            }
+
+            if (metricsConfig.isRequestMetricEnable()) {
+                handlers.add(new JbootRequestMetricHandler());
+            }
+        }
 
         handlers.add(new JbootHandler());
 
@@ -299,10 +322,13 @@ public class JwebCoreConfig extends JFinalConfig {
         JwebGatewayManager.me().init();
         JbootShiroManager.me().init(routeList);
         JbootrpcManager.me().init();
+
         JbootScheduleManager.me().init();
         JbootSwaggerManager.me().init();
         LimiterManager.me().init();
         JbootSeataManager.me().init();
+        JbootSentinelManager.me().init();
+
 
         JbootAppListenerManager.me().onStart();
 
@@ -328,5 +354,6 @@ public class JwebCoreConfig extends JFinalConfig {
         JbootSeataManager.me().stop();
         JbootrpcManager.me().stop();
     }
+
 
 }
