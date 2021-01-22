@@ -203,8 +203,12 @@ public class JwebJwtSession extends JwebSecuritySession {
         isModify = true;
     }
 
+    private boolean isPost = false;
     @Override
     public void postIntercept() {
+        if (isPost) {
+            return;
+        }
 //        long start = System.currentTimeMillis();
         // session data 是否存在修改？
         if (forceRefresh || isModify || (getAccount() != null && getAccount().isModify())) {
@@ -213,6 +217,7 @@ public class JwebJwtSession extends JwebSecuritySession {
             // 如果sessionData没有修改, 隔一小段时间更新token，避免每个请求刷新token,提高访问性能
             refreshIfNecessary();
         }
+        isPost = true;
 //        System.out.println("postIntercept cost time:" + (System.currentTimeMillis() - start));
     }
 
@@ -220,6 +225,7 @@ public class JwebJwtSession extends JwebSecuritySession {
     public void postHandle() {
         postIntercept();
     }
+
 
     /**
      * 刷新token
@@ -274,18 +280,18 @@ public class JwebJwtSession extends JwebSecuritySession {
             }
         }
         // Jwt token 的发布时间
-        Integer issueAtSeconds = (Integer) sessionData.get(Claims.ISSUED_AT);
-        Integer timeoutSeconds = (Integer) sessionData.get(JwtUtils.TIMEOUT_S);
+        Number issueAtSeconds = (Number)sessionData.get(Claims.ISSUED_AT);
+        Number timeoutSeconds = (Number) sessionData.get(JwtUtils.TIMEOUT_S);
         // 如果token不存在？不刷新
         if (issueAtSeconds == null) {
             return;
         }
         // token永久有效，并且未变更，不刷新
-        if (timeoutSeconds <= 0 && this.getTimeoutSeconds() <= 0) {
+        if (timeoutSeconds.intValue() <= 0 && this.getTimeoutSeconds() <= 0) {
             return;
         }
         // 已经发布的时间
-        long pastSeconds = System.currentTimeMillis() / 1000 - issueAtSeconds;
+        long pastSeconds = System.currentTimeMillis() / 1000 - issueAtSeconds.intValue();
         // 已经发布的时间 大于有效期的十分之一，重新刷新
         if (pastSeconds > (this.getTimeoutSeconds()) / 10) {
             refreshToken();
