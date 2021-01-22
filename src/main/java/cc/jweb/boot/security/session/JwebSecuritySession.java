@@ -154,4 +154,7 @@ public abstract class JwebSecuritySession {
     // jweb security interceptor 中断执行后置回调
     public abstract void postIntercept();
 
+    // jweb security handler 处理后置回调
+    public abstract void postHandle();
+
 }

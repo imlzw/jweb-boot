@@ -16,7 +16,10 @@
 
 package cc.jweb.boot.security.utils;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -48,21 +51,11 @@ public class JwtUtils {
      */
     public static Map parseTokenBody(String token, String secret) {
         SecretKey secretKey = generalSecretKey(secret);
-        try {
-            Claims claims = Jwts.parser()
-                    .setSigningKey(secretKey)
-                    .parseClaimsJws(token).getBody();
+        Claims claims = Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token).getBody();
 
-            return new HashMap(claims);
-        } catch (SignatureException | MalformedJwtException ex) {
-            System.err.println("Jweb: Do not trast the jwt. " + ex.getMessage());
-        } catch (ExpiredJwtException ex) {
-            System.err.println("Jweb: Jwt is expired. " + ex.getMessage());
-        } catch (Exception ex) {
-            System.err.println("Jweb: Jwt parseJwtToken error. " + ex.getMessage());
-        }
-
-        return EMPTY_MAP;
+        return new HashMap(claims);
     }
 
     public static String createJwtToken(Map payload, String secret, long timeoutSeconds) {
@@ -114,6 +107,7 @@ public class JwtUtils {
      */
     public static void responseJwt2Cookie(HttpServletResponse response, String cookieName, String token) {
         Cookie cookie = new Cookie(cookieName, token);
+        cookie.setPath("/");
         if (token == null) {
             cookie.setMaxAge(0);
         }

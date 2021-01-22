@@ -34,8 +34,7 @@ import java.lang.reflect.InvocationTargetException;
  * <p>
  * 1.根据配置，过滤需要认证url
  * 2.如果是jwt认证，提取jwt信息到jwtSession中(注意：jwtSession大小有限制,cookie模式时最大4KB)
- * 3.如果是cookie Session认证，初始化httpSession对象
- * 4.
+ * 3.如果是http Session认证，初始化httpSession对象
  */
 public class JwebSecurityHandler extends Handler {
 
@@ -86,7 +85,13 @@ public class JwebSecurityHandler extends Handler {
             }
         }
         if (!isHandled[0]) {
-            next.handle(target, request, response, isHandled);
+            try {
+                next.handle(target, request, response, isHandled);
+            } finally {
+                if (session != null) {
+                    session.postHandle();
+                }
+            }
         }
     }
 }

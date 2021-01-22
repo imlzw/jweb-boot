@@ -117,4 +117,9 @@ public class JwebHttpSession extends JwebSecuritySession {
     public void postIntercept() {
         // doing nothing
     }
+
+    @Override
+    public void postHandle() {
+        // doing nothing
+    }
 }

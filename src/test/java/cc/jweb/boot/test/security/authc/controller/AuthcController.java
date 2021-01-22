@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-package cc.jweb.boot.web.demo.controller;
+package cc.jweb.boot.test.security.authc.controller;
 
 import cc.jweb.boot.controller.BaseController;
 import cc.jweb.boot.security.session.account.JwebSecurityAccount;
 import cc.jweb.boot.security.utils.JwebSecurityUtils;
+import com.jfinal.core.ActionKey;
 import io.jboot.web.controller.annotation.RequestMapping;
 
-@RequestMapping(value = "/")
-public class IndexController extends BaseController {
-    public void index() {
-        JwebSecurityAccount account = JwebSecurityUtils.getAccount();
-        account.setExt("test", "112233221231231");
-        account.setExt("test2", "323112233221231231");
-        account.setExt("test3", "323112233221231231");
-        renderText("OK,Account:" + account);
-    }
+@RequestMapping(value = "/authc")
+public class AuthcController extends BaseController {
 
+    @ActionKey("/login")
     public void login() {
         // 处理用户登录操作，验证成功后，设置账户信息
         String uid = getPara("uid");
@@ -45,11 +40,14 @@ public class IndexController extends BaseController {
         }
     }
 
+
+    @ActionKey("/userInfo")
     public void userInfo() {
         JwebSecurityAccount account = JwebSecurityUtils.getAccount();
         renderText("account:" + account);
     }
 
+    @ActionKey("/logout")
     public void logout() {
         JwebSecurityUtils.invalidate();
         redirect("/login");

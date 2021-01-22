@@ -21,8 +21,7 @@ import cc.jweb.boot.security.config.JwebSecurityConfig;
 import cc.jweb.boot.security.session.JwebSecuritySession;
 import cc.jweb.boot.security.session.account.JwebSecurityAccount;
 import cc.jweb.boot.security.utils.JwtUtils;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -43,6 +42,7 @@ public class JwebJwtSession extends JwebSecuritySession {
     private final static String ACCOUNT_SESSION_UID_KEY = ACCOUNT_SESSION_PRE_KEY + "UID";
     private final static String ACCOUNT_SESSION_UNAME_KEY = ACCOUNT_SESSION_PRE_KEY + "UNAME";
     private boolean isModify = false;
+    private boolean forceRefresh = false;
 
     private Map<String, Object> sessionData = new HashMap<>(16);
     private JwebSecurityAccount account = null;
@@ -75,7 +75,19 @@ public class JwebJwtSession extends JwebSecuritySession {
             }
         }
         if (token != null) {
-            Map map = JwtUtils.parseTokenBody(token, secret);
+            Map map = null;
+            try {
+                map = JwtUtils.parseTokenBody(token, secret);
+            } catch (SignatureException | MalformedJwtException ex) {
+                System.err.println("Jweb: Do not trast the jwt. " + ex.getMessage());
+                forceRefresh = true;
+            } catch (ExpiredJwtException ex) {
+                System.err.println("Jweb: Jwt is expired. " + ex.getMessage());
+                forceRefresh = true;
+            } catch (Exception ex) {
+                System.err.println("Jweb: Jwt parseJwtToken error. " + ex.getMessage());
+                forceRefresh = true;
+            }
             if (map != null) {
                 this.sessionData.putAll(map);
             }
@@ -192,13 +204,18 @@ public class JwebJwtSession extends JwebSecuritySession {
     public void postIntercept() {
 //        long start = System.currentTimeMillis();
         // session data 是否存在修改？
-        if (isModify || (getAccount() != null && getAccount().isModify())) {
+        if (forceRefresh || isModify || (getAccount() != null && getAccount().isModify())) {
             refreshToken();
         } else {
             // 如果sessionData没有修改, 隔一小段时间更新token，避免每个请求刷新token,提高访问性能
             refreshIfNecessary();
         }
 //        System.out.println("postIntercept cost time:" + (System.currentTimeMillis() - start));
+    }
+
+    @Override
+    public void postHandle() {
+        postIntercept();
     }
 
     /**

@@ -14,24 +14,16 @@
  * limitations under the License.
  */
 
-package cc.jweb.boot.security.interceptor;
+package cc.jweb.boot.test.index.controller;
 
-import cc.jweb.boot.security.session.JwebSecuritySession;
+import cc.jweb.boot.controller.BaseController;
+import cc.jweb.boot.security.session.account.JwebSecurityAccount;
 import cc.jweb.boot.security.utils.JwebSecurityUtils;
-import com.jfinal.aop.Interceptor;
-import com.jfinal.aop.Invocation;
+import io.jboot.web.controller.annotation.RequestMapping;
 
-public class JwebSecurityInterceptor implements Interceptor {
-
-    @Override
-    public void intercept(Invocation inv) {
-        try {
-            inv.invoke();
-        }finally {
-            JwebSecuritySession session = JwebSecurityUtils.getSession();
-            if (session != null) {
-                session.postIntercept();
-            }
-        }
+@RequestMapping(value = "/")
+public class IndexController extends BaseController {
+    public void index() {
+        renderText("OK,Account:" + JwebSecurityUtils.getAccount());
     }
 }
