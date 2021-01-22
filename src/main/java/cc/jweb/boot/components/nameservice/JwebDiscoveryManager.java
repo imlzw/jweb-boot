@@ -126,28 +126,33 @@ public class JwebDiscoveryManager {
         String localInetAddress = JwebDiscoveryKit.getLocalInetAddress(config);
         int port = Integer.parseInt(Jboot.configValue("undertow.port"));
         System.out.print("Jweb Registering LocalService (" + localInetAddress + ":" + port + ") ...");
-        Instance instance = new Instance();
-        instance.setClusterName(config.getClusterName());
-        instance.setServiceName(config.getServiceName());
-        instance.setIp(localInetAddress);
-        instance.setPort(port);
-        instance.setHealthy(true);
-        instance.setWeight(1.0);
-        // 临时实例会生成心跳反馈程序，持久不会，那如何健康检查呢？
-        instance.setEphemeral(config.isEphemeral());
-        Map<String, String> instanceMeta = new HashMap<>();
+        try {
+            Instance instance = new Instance();
+            instance.setClusterName(config.getClusterName());
+            instance.setServiceName(config.getServiceName());
+            instance.setIp(localInetAddress);
+            instance.setPort(port);
+            instance.setHealthy(true);
+            instance.setWeight(1.0);
+            // 临时实例会生成心跳反馈程序，持久不会，那如何健康检查呢？
+            instance.setEphemeral(config.isEphemeral());
+            Map<String, String> instanceMeta = new HashMap<>();
 //        instanceMeta.put("site", "et2");
 //        instanceMeta.put("site1", "et2");
 //        instanceMeta.put("sit3e", "et2");
 //        instanceMeta.put("site4", "et2");
-        instance.setMetadata(instanceMeta);
-        String groupName = config.getGroupName();
-        if (StringUtils.notBlank(groupName)) {
-            namingService.registerInstance(config.getServiceName(), groupName, instance);
-        } else {
-            namingService.registerInstance(config.getServiceName(), instance);
+            instance.setMetadata(instanceMeta);
+            String groupName = config.getGroupName();
+            if (StringUtils.notBlank(groupName)) {
+                namingService.registerInstance(config.getServiceName(), groupName, instance);
+            } else {
+                namingService.registerInstance(config.getServiceName(), instance);
+            }
+            System.out.println(" --> OK!");
+        } catch (NacosException e) {
+            System.out.println("");
+            throw e;
         }
-        System.out.println(" --> OK!");
 //
 //        Service service = new Service("nacos.test.4");
 //        service.setApp("nacos-naming");
