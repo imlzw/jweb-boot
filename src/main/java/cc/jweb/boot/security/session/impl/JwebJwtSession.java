@@ -1,5 +1,5 @@
 /*
- * Copyright  (c) 2020-2021 imlzw@vip.qq.com jweb.cc.
+ * Copyright (c) 2020-2021 imlzw@vip.qq.com jweb.cc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,9 @@ import java.util.Set;
 
 /**
  * jwt session 实现json web token 的 session
+ *
+ * - 当session数据无变化时，间隔1/10超时时间刷新token。避免频繁刷新token影响性能。
+ * - 当session为空并且token无效时，及时清理token，避免无效token占用request头部cookie大小
  */
 public class JwebJwtSession extends JwebSecuritySession {
 
