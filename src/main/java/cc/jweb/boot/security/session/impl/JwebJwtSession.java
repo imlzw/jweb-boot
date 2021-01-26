@@ -42,10 +42,10 @@ import java.util.Set;
  */
 public class JwebJwtSession extends JwebSecuritySession {
 
-    private final static String ACCOUNT_SESSION_PRE_KEY = "J";
-    private final static String ACCOUNT_SESSION_EXT_PRE_KEY = "JE";
-    private final static String ACCOUNT_SESSION_UID_KEY = ACCOUNT_SESSION_PRE_KEY + "UID";
-    private final static String ACCOUNT_SESSION_UNAME_KEY = ACCOUNT_SESSION_PRE_KEY + "UNAME";
+    private final static String ACCOUNT_SESSION_EXT_PRE_KEY = "E_";
+    private final static String SESSION_EXT_PRE_KEY = "S_";
+    private final static String ACCOUNT_SESSION_UID_KEY = "UID";
+    private final static String ACCOUNT_SESSION_UNAME_KEY = "UNAME";
     private boolean isModify = false;
     private boolean forceRefresh = false;
 
@@ -130,7 +130,7 @@ public class JwebJwtSession extends JwebSecuritySession {
     }
 
     private String getNewAttrName(String attrName) {
-        return "S_" + attrName;
+        return SESSION_EXT_PRE_KEY + attrName;
     }
 
     @Override
