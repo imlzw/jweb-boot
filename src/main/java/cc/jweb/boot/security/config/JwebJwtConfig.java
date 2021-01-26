@@ -16,12 +16,15 @@
 
 package cc.jweb.boot.security.config;
 
+import cc.jweb.boot.security.session.perms.JwebNonePermsManager;
+
 public class JwebJwtConfig {
     public final static String POSITION_HEADER = "HEADER";
     public final static String POSITION_COOKIE = "COOKIE";
     private String storePosition = POSITION_COOKIE;
     private String storeKey = "jwt";
     private String secret = null;
+    private String permsManager = JwebNonePermsManager.class.getName();
 
     public String getStorePosition() {
         return storePosition;

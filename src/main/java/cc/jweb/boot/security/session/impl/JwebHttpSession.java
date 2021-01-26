@@ -19,6 +19,7 @@ package cc.jweb.boot.security.session.impl;
 import cc.jweb.boot.security.config.JwebSecurityConfig;
 import cc.jweb.boot.security.session.JwebSecuritySession;
 import cc.jweb.boot.security.session.account.JwebSecurityAccount;
+import cc.jweb.boot.security.session.perms.JwebNonePermsManager;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -45,6 +46,7 @@ public class JwebHttpSession extends JwebSecuritySession {
     @Override
     public void setAccount(JwebSecurityAccount jwebSecurityAccount) {
         getRequest().getSession(true).setAttribute(ACCOUNT_KEY, jwebSecurityAccount);
+        getJwebPermsManager().invalidate(jwebSecurityAccount);
     }
 
     @Override
@@ -71,42 +73,14 @@ public class JwebHttpSession extends JwebSecuritySession {
     }
 
     @Override
-    public boolean isAuthentication() {
+    public boolean isAuthenticated() {
         return getAccount() != null;
     }
 
-    @Override
-    public boolean hasRole(String role) {
-        return false;
-    }
-
-    @Override
-    public boolean[] hasRoles(String... roles) {
-        return new boolean[0];
-    }
-
-    @Override
-    public boolean hasAllRoles(String... roles) {
-        return false;
-    }
-
-    @Override
-    public boolean isPermitted(String permission) {
-        return false;
-    }
-
-    @Override
-    public boolean[] isPermitted(String... permissions) {
-        return new boolean[0];
-    }
-
-    @Override
-    public boolean isPermittedAll(String... permissions) {
-        return false;
-    }
 
     @Override
     public void invalidate() {
+        getJwebPermsManager().invalidate(getAccount());
         HttpSession session = getRequest().getSession(false);
         if (session != null) {
             session.invalidate();

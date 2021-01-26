@@ -16,6 +16,8 @@
 
 package cc.jweb.boot.security.config;
 
+import cc.jweb.boot.security.session.perms.JwebNonePermsManager;
+
 /**
  * jweb security config
  *

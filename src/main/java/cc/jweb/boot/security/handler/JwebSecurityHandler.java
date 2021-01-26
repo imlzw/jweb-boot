@@ -49,15 +49,26 @@ public class JwebSecurityHandler extends Handler {
         JwebSecuritySession session = null;
         if (securityConfig.isEnable()) {
             try {
-                if (securityConfig.getAuthc().isEnable() ) {
+                boolean isAuthcEnable = securityConfig.getAuthc().isEnable();
+                boolean isPermsEnable = securityConfig.getPerms().isEnable();
+                if (isAuthcEnable || isPermsEnable) {
                     // 加载session
                     session = JwebSecurityManager.me().initSession(request, response, securityConfig);
-                    // 未登录
-                    if (securityConfig.getAuthc().pathMatch(target) && !JwebSecurityManager.me().getSession().isAuthentication()) {
-                        if (!target.equals(securityConfig.getAuthc().getLoginUrl())) {
-                            JwebUtils.redirect(request, response, securityConfig.getAuthc().getLoginUrl());
-                            isHandled[0] = true;
-                            return;
+                }
+                if (isAuthcEnable) {
+                    boolean isLoginUrl = target.equals(securityConfig.getAuthc().getLoginUrl());
+                    if (!isLoginUrl) {
+                        // 未登录
+                        if (!JwebSecurityManager.me().getSession().isAuthenticated()) {
+                            // 清除优先
+                            boolean isClear = JwebSecurityManager.me().isActionClearSecurity(target);
+                            // 注解匹配（优先），路径匹配
+                            boolean isMatch = !isClear && (JwebSecurityManager.me().isActionRequiredAuthc(target) || securityConfig.getAuthc().pathMatch(target));
+                            if (isMatch) {
+                                JwebUtils.redirect(request, response, securityConfig.getAuthc().getLoginUrl());
+                                isHandled[0] = true;
+                                return;
+                            }
                         }
                     }
                 }

@@ -17,9 +17,11 @@
 package cc.jweb.boot.security.session;
 
 import cc.jweb.boot.security.config.JwebSecurityConfig;
+import cc.jweb.boot.security.exception.AuthorizationException;
+import cc.jweb.boot.security.exception.UnauthorizedException;
 import cc.jweb.boot.security.session.account.JwebSecurityAccount;
-import org.apache.shiro.authz.AuthorizationException;
-import org.apache.shiro.authz.UnauthorizedException;
+import cc.jweb.boot.security.session.perms.JwebNonePermsManager;
+import cc.jweb.boot.security.session.perms.JwebPermsManager;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -38,12 +40,21 @@ public abstract class JwebSecuritySession {
     private HttpServletResponse response;
     private JwebSecurityConfig jwebSecurityConfig;
     private int timeoutSeconds = 30 * 60;
+    private JwebPermsManager jwebPermsManager = new JwebNonePermsManager();
 
     public JwebSecuritySession(HttpServletRequest request, HttpServletResponse response, JwebSecurityConfig jwebSecurityConfig) {
         this.request = request;
         this.response = response;
         this.jwebSecurityConfig = jwebSecurityConfig;
         this.timeoutSeconds = jwebSecurityConfig.getSessionTimeout();
+    }
+
+    public JwebPermsManager getJwebPermsManager() {
+        return jwebPermsManager;
+    }
+
+    public void setJwebPermsManager(JwebPermsManager jwebPermsManager) {
+        this.jwebPermsManager = jwebPermsManager;
     }
 
     public HttpServletRequest getRequest() {
@@ -77,7 +88,7 @@ public abstract class JwebSecuritySession {
     public abstract void setAccount(JwebSecurityAccount jwebSecurityAccount);
 
     // 是否已认证
-    public abstract boolean isAuthentication();
+    public abstract boolean isAuthenticated();
 
     // 设置session属性值
     public abstract Object getAttribute(String attrName);
@@ -99,32 +110,44 @@ public abstract class JwebSecuritySession {
     }
 
     // 是否存在角色
-    public abstract boolean hasRole(String role);
+    public boolean hasRole(String role) {
+        return jwebPermsManager.hasRole(getAccount(), role);
+    }
 
     // 批量判断是否存在角色
-    public abstract boolean[] hasRoles(String... roles);
+    public boolean[] hasRoles(String... roles){
+        return jwebPermsManager.hasRoles(getAccount(), roles);
+    };
 
     // 是否存在所有角色
-    public abstract boolean hasAllRoles(String... roles);
+    public boolean hasAllRoles(String... roles){
+        return jwebPermsManager.hasAllRoles(getAccount(), roles);
+    }
 
     // 是否存在权限授权
-    public abstract boolean isPermitted(String permission);
+    public boolean isPermitted(String permission){
+        return jwebPermsManager.isPermitted(getAccount(), permission);
+    }
 
     // 批量判断是否存在权限授权
-    public abstract boolean[] isPermitted(String... permissions);
+    public boolean[] isPermitted(String... permissions) {
+        return jwebPermsManager.isPermitted(getAccount(), permissions);
+    }
 
     // 是否存在所有权限授权
-    public abstract boolean isPermittedAll(String... permissions);
+    public boolean isPermittedAll(String... permissions) {
+        return jwebPermsManager.isPermittedAll(getAccount(), permissions);
+    }
 
     // 检查是否存在角色，不存在时，抛出异常
-    void checkRole(String role) throws AuthorizationException {
+    public void checkRole(String role) throws AuthorizationException {
         if (!hasRole(role)) {
             throw new UnauthorizedException("Session does not have role [" + role + "]");
         }
     }
 
     // 检查是否存在所有角色，不存在时，抛出异常
-    void checkRoles(String... roles) {
+    public void checkRoles(String... roles) {
         if (roles != null) {
             for (String role : roles) {
                 checkRole(role);
@@ -133,14 +156,14 @@ public abstract class JwebSecuritySession {
     }
 
     // 检查是否有权限授权，不存在时，抛出异常
-    void checkPermission(String permission) {
+    public void checkPermission(String permission) {
         if (!isPermitted(permission)) {
             throw new UnauthorizedException("Session does not have permission [" + permission + "]");
         }
     }
 
     // 检查是否有所有权限授权，不存在时，抛出异常
-    void checkPermissions(String... permissions) {
+    public void checkPermissions(String... permissions) {
         if (permissions != null && permissions.length > 0) {
             for (String perm : permissions) {
                 checkPermission(perm);

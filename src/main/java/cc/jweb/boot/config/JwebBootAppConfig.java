@@ -42,12 +42,13 @@ public class JwebBootAppConfig extends JbootAppListenerBase {
     @Override
     public void onRouteConfig(Routes me) {
         this.routes = me;
+
     }
 
 
     @Override
     public void onInterceptorConfig(Interceptors me) {
-        me.add(JwebSecurityManager.getInterceptor());
+        me.add(JwebSecurityManager.me().getInterceptor());
     }
 
     @Override

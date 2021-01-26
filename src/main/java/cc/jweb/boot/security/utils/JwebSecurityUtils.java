@@ -17,6 +17,7 @@
 package cc.jweb.boot.security.utils;
 
 import cc.jweb.boot.security.JwebSecurityManager;
+import cc.jweb.boot.security.processer.AuthzProcesser;
 import cc.jweb.boot.security.session.JwebSecuritySession;
 import cc.jweb.boot.security.session.account.JwebSecurityAccount;
 
@@ -40,7 +41,7 @@ public class JwebSecurityUtils {
      * @return
      */
     public static boolean isAuthentication() {
-        return getSession().isAuthentication();
+        return getSession().isAuthenticated();
     }
 
     /**
@@ -75,5 +76,14 @@ public class JwebSecurityUtils {
      */
     public static void invalidate() {
         getSession().invalidate();
+    }
+
+    /**
+     * 获取actionKey的映射授权处理程序
+     * @param actionKey
+     * @return
+     */
+    public static AuthzProcesser getAuthzProcesser(String actionKey) {
+        return getSecurityManager().me().getAuthzProcesser(actionKey);
     }
 }

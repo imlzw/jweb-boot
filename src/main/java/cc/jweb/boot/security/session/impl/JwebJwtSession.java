@@ -20,6 +20,8 @@ import cc.jweb.boot.security.config.JwebJwtConfig;
 import cc.jweb.boot.security.config.JwebSecurityConfig;
 import cc.jweb.boot.security.session.JwebSecuritySession;
 import cc.jweb.boot.security.session.account.JwebSecurityAccount;
+import cc.jweb.boot.security.session.perms.JwebNonePermsManager;
+import cc.jweb.boot.security.session.perms.JwebPermsManager;
 import cc.jweb.boot.security.utils.JwtUtils;
 import io.jsonwebtoken.*;
 
@@ -98,6 +100,8 @@ public class JwebJwtSession extends JwebSecuritySession {
         this.token = token;
     }
 
+
+
     @Override
     public JwebSecurityAccount getAccount() {
         if (account == null) {
@@ -121,6 +125,7 @@ public class JwebJwtSession extends JwebSecuritySession {
     @Override
     public void setAccount(JwebSecurityAccount jwebSecurityAccount) {
         this.account = jwebSecurityAccount;
+        getJwebPermsManager().invalidate(jwebSecurityAccount);
         isModify = true;
     }
 
@@ -157,42 +162,13 @@ public class JwebJwtSession extends JwebSecuritySession {
     }
 
     @Override
-    public boolean isAuthentication() {
+    public boolean isAuthenticated() {
         return getAccount() != null;
     }
 
     @Override
-    public boolean hasRole(String role) {
-        return false;
-    }
-
-    @Override
-    public boolean[] hasRoles(String... roles) {
-        return new boolean[0];
-    }
-
-    @Override
-    public boolean hasAllRoles(String... roles) {
-        return false;
-    }
-
-    @Override
-    public boolean isPermitted(String permission) {
-        return false;
-    }
-
-    @Override
-    public boolean[] isPermitted(String... permissions) {
-        return new boolean[0];
-    }
-
-    @Override
-    public boolean isPermittedAll(String... permissions) {
-        return false;
-    }
-
-    @Override
     public void invalidate() {
+        getJwebPermsManager().invalidate(account);
         sessionData.clear();
         account = null;
         token = null;
@@ -214,7 +190,7 @@ public class JwebJwtSession extends JwebSecuritySession {
         if (forceRefresh || isModify || (getAccount() != null && getAccount().isModify())) {
             refreshToken();
         } else {
-            // 如果sessionData没有修改, 隔一小段时间更新token，避免每个请求刷新token,提高访问性能
+            // 如果sessionData没有修改, 隔一小段时间更新token（0.1*timeout），避免每个请求刷新token,提高访问性能
             refreshIfNecessary();
         }
         isPost = true;

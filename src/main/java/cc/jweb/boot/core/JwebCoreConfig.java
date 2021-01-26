@@ -320,7 +320,7 @@ public class JwebCoreConfig extends JFinalConfig {
          */
         JwebDiscoveryManager.me().init();
         JwebGatewayManager.me().init();
-        JbootShiroManager.me().init(routeList);
+        JwebSecurityManager.me().injectRoutes(routeList);
         JbootrpcManager.me().init();
 
         JbootScheduleManager.me().init();
