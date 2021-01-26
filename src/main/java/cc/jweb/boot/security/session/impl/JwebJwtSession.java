@@ -42,8 +42,8 @@ import java.util.Set;
  */
 public class JwebJwtSession extends JwebSecuritySession {
 
-    private final static String ACCOUNT_SESSION_PRE_KEY = "JWEB_A_";
-    private final static String ACCOUNT_SESSION_EXT_PRE_KEY = "JWEB_A_E_";
+    private final static String ACCOUNT_SESSION_PRE_KEY = "J";
+    private final static String ACCOUNT_SESSION_EXT_PRE_KEY = "JE";
     private final static String ACCOUNT_SESSION_UID_KEY = ACCOUNT_SESSION_PRE_KEY + "UID";
     private final static String ACCOUNT_SESSION_UNAME_KEY = ACCOUNT_SESSION_PRE_KEY + "UNAME";
     private boolean isModify = false;
