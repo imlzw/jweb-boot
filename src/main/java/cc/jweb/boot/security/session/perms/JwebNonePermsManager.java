@@ -21,50 +21,48 @@ import cc.jweb.boot.security.session.account.JwebSecurityAccount;
 /**
  * 空权限管理器
  * <p>
- * 所有权限返回true
+ * 所有权限返回false
  */
 public class JwebNonePermsManager implements JwebPermsManager {
 
     @Override
     public boolean hasRole(JwebSecurityAccount account, String role) {
-        return true;
+        return false;
     }
 
     @Override
     public boolean[] hasRoles(JwebSecurityAccount account, String... roles) {
         boolean[] booleans = new boolean[roles.length];
         for (int i = 0; i < roles.length; i++) {
-            booleans[i] = true;
+            booleans[i] = false;
         }
         return booleans;
     }
 
     @Override
     public boolean hasAllRoles(JwebSecurityAccount account, String... roles) {
-        return true;
+        return false;
     }
 
     @Override
     public boolean isPermitted(JwebSecurityAccount account, String permission) {
-        return true;
+        return false;
     }
 
     @Override
     public boolean[] isPermitted(JwebSecurityAccount account, String... permissions) {
         boolean[] booleans = new boolean[permissions.length];
         for (int i = 0; i < permissions.length; i++) {
-            booleans[i] = true;
+            booleans[i] = false;
         }
         return booleans;
     }
 
     @Override
     public boolean isPermittedAll(JwebSecurityAccount account, String... permissions) {
-        return true;
+        return false;
     }
 
     @Override
-    public void invalidate(JwebSecurityAccount account) {
-
-    }
+    public void invalidate(JwebSecurityAccount account) {}
 }

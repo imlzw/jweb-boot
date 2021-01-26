@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package cc.jweb.boot.security.annotation;
+package cc.jweb.boot.security.directives;
 
-import java.lang.annotation.*;
+import cc.jweb.boot.security.session.JwebSecuritySession;
+import cc.jweb.boot.security.utils.JwebSecurityUtils;
+import io.jboot.web.directive.base.JbootDirectiveBase;
 
 /**
- * 用来清除所有的jweb security 访问控制注解
- * 适合于Controller绝大部分方法都需要做认证与权限访问控制，
- * 个别不需要做访问控制的场合。
- * 可用于类或者方法上。
- *
- * @author imlzw
+ * jweb-security 指令的基类
  */
-@Inherited
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
-public @interface ClearSecurity {
+public abstract class JwebSecurityDirectiveBase extends JbootDirectiveBase {
+
+    protected JwebSecuritySession getSession() {
+        return JwebSecurityUtils.getSession();
+    }
+
 }

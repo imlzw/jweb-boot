@@ -115,17 +115,19 @@ public abstract class JwebSecuritySession {
     }
 
     // 批量判断是否存在角色
-    public boolean[] hasRoles(String... roles){
+    public boolean[] hasRoles(String... roles) {
         return jwebPermsManager.hasRoles(getAccount(), roles);
-    };
+    }
+
+    ;
 
     // 是否存在所有角色
-    public boolean hasAllRoles(String... roles){
+    public boolean hasAllRoles(String... roles) {
         return jwebPermsManager.hasAllRoles(getAccount(), roles);
     }
 
     // 是否存在权限授权
-    public boolean isPermitted(String permission){
+    public boolean isPermitted(String permission) {
         return jwebPermsManager.isPermitted(getAccount(), permission);
     }
 
@@ -171,7 +173,7 @@ public abstract class JwebSecuritySession {
         }
     }
 
-    //注销
+    // 注销
     public abstract void invalidate();
 
     // jweb security interceptor 中断执行后置回调
